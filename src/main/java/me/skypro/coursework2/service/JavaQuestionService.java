@@ -60,7 +60,7 @@ public class JavaQuestionService implements QuestionService {
             throw new QuestionNotFoundException();
         }
         questions.remove(question);
-        return question;
+        return null;
     }
 
     public Question remove(String question, String answer) {

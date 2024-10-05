@@ -4,10 +4,7 @@ import me.skypro.coursework2.domain.Question;
 import me.skypro.coursework2.exceptions.InvalidQuestionsAmountRequestException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 @Service
 public class ExaminerServiceImpl implements ExaminerService {
@@ -22,18 +19,21 @@ public class ExaminerServiceImpl implements ExaminerService {
         if (amount > questionService.getAll().size() || amount <= 0) {
             throw new InvalidQuestionsAmountRequestException();
         }
-        Question[] questionsArray = questionService.getAll().toArray(new Question[0]);
-        List<Question> resultList = new ArrayList<>();
-        Random random = new Random();
-        int randomIndex = random.nextInt(amount);
 
-        for (int i = 0; i < amount; ) {
-            if (!resultList.contains(questionsArray[randomIndex])) {
-                resultList.add(questionService.getRandomQuestion());
-                i++;
-            }
-            randomIndex = random.nextInt(amount);
+        Set<Question> allQuestions = new HashSet<>(questionService.getAll());
+        if (amount == allQuestions.size()) {
+            return allQuestions;
         }
-        return resultList;
+
+        Set<Question> resultSet = new HashSet<>();
+        List<Question> questionList = new ArrayList<>(allQuestions);
+        Random random = new Random();
+        while (resultSet.size() < amount) {
+            int randomIndex = random.nextInt(questionList.size());
+            Question randomQuestion = questionList.get(randomIndex);
+            resultSet.add(randomQuestion);
+            questionList.remove(randomIndex);
+        }
+        return resultSet;
     }
 }

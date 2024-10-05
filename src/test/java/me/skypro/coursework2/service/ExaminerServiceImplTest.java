@@ -11,7 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ExaminerServiceImplTest {
@@ -30,6 +30,7 @@ class ExaminerServiceImplTest {
     void shouldThrowIfAmountIsZeroOrNegative() {
         assertThrows(InvalidQuestionsAmountRequestException.class, () -> examinerService.getQuestions(0));
         assertThrows(InvalidQuestionsAmountRequestException.class, () -> examinerService.getQuestions(-1));
+        verify(questionService, never()).getRandomQuestion();
     }
 
     @Test
@@ -37,17 +38,19 @@ class ExaminerServiceImplTest {
         when(questionService.getAll()).thenReturn(Arrays.asList(question1, question2));
 
         assertThrows(InvalidQuestionsAmountRequestException.class, () -> examinerService.getQuestions(5));
+        verify(questionService, never()).getRandomQuestion();
     }
 
     @Test
     void shouldReturnUniqueQuestions() {
-
         when(questionService.getAll()).thenReturn(Arrays.asList(question1, question2, question3, question4));
 
         Collection<Question> actual = examinerService.getQuestions(4);
         Set<Question> expected = new HashSet<>(actual);
 
         assertEquals(actual.size(), expected.size());
+        assertTrue(actual.containsAll(expected));
+        verify(questionService, atLeastOnce()).getAll();
     }
 
 }
