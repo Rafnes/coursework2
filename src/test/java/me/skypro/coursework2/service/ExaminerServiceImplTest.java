@@ -41,8 +41,6 @@ class ExaminerServiceImplTest {
 
     @Test
     void shouldThrowIfAmountIsBiggerThanCollection() {
-        when(questionService.getAll()).thenReturn(Arrays.asList(question1, question2));
-
         assertThrows(InvalidQuestionsAmountRequestException.class, () -> examinerService.getQuestions(5));
         verify(questionService, never()).getRandomQuestion();
     }
