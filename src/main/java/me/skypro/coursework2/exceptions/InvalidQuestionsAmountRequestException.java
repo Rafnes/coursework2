@@ -5,9 +5,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 public class InvalidQuestionsAmountRequestException extends IllegalArgumentException {
-    private static final String MESSAGE = "Запрошено некорректное количество вопросов";
 
     public InvalidQuestionsAmountRequestException() {
-        super(MESSAGE);
+        super("Запрошено некорректное количество вопросов");
     }
 }

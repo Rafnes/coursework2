@@ -1,9 +1,12 @@
-package me.skypro.coursework2.service;
+package me.skypro.coursework2.service.Impl;
 
 import jakarta.annotation.PostConstruct;
 import me.skypro.coursework2.domain.Question;
 import me.skypro.coursework2.exceptions.InsufficientParamsException;
+import me.skypro.coursework2.exceptions.QuestionAlreadyExistsException;
 import me.skypro.coursework2.exceptions.QuestionNotFoundException;
+import me.skypro.coursework2.service.QuestionService;
+import me.skypro.coursework2.utilities.RandomGenerator;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -21,12 +24,12 @@ public class JavaQuestionService implements QuestionService {
         questions.add(new Question("Вопрос 3",
                 "Ответ 3"));
         questions.add(new Question("Какие существуют принципы ООП",
-                "Наследование, инкапсуляция, полиморфизм"));
+                "Наследование, инкапсуляция, полиморфизм, [абстракция]"));
         questions.add(new Question("Перечислите типы переменных с плавающей точкой",
                 "double, float"));
         questions.add(new Question("Перечислите целочисленные типы переменных",
-                "byte, short, int, Long"));
-        questions.add(new Question("Возможно ли в Java множественное наследование",
+                "byte, short, int, long"));
+        questions.add(new Question("Возможно ли в Java множественное наследование (состояния)",
                 "Нет"));
         questions.add(new Question("В чем отличие постфиксного инкремента(декремента) от префиксного",
                 "Постфиксный ин(де)кремент сначала возвращает значение, а потом увеличивает/уменьшает переменную"));
@@ -38,6 +41,9 @@ public class JavaQuestionService implements QuestionService {
             throw new InsufficientParamsException();
         }
         Question q = new Question(question, answer);
+        if (questions.contains(q)) {
+            throw new QuestionAlreadyExistsException();
+        }
         questions.add(q);
         return q;
     }
@@ -46,6 +52,9 @@ public class JavaQuestionService implements QuestionService {
     public Question add(Question question) {
         if (question == null) {
             throw new InsufficientParamsException();
+        }
+        if (questions.contains(question)) {
+            throw new QuestionAlreadyExistsException();
         }
         questions.add(question);
         return question;
@@ -81,11 +90,15 @@ public class JavaQuestionService implements QuestionService {
     }
 
     @Override
+    public int getQuestionsCollectionSize() {
+        return questions.size();
+    }
+
+    @Override
     public Question getRandomQuestion() {
-        Random random = new Random();
         Question[] questionsArray = questions.toArray(new Question[0]);
 
-        int randomIndex = random.nextInt(questionsArray.length);
+        int randomIndex = RandomGenerator.getRandomNumber(questionsArray.length);
         return questionsArray[randomIndex];
     }
 }

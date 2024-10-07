@@ -2,6 +2,7 @@ package me.skypro.coursework2.service;
 
 import me.skypro.coursework2.domain.Question;
 import me.skypro.coursework2.exceptions.InvalidQuestionsAmountRequestException;
+import me.skypro.coursework2.service.Impl.ExaminerServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -27,8 +28,13 @@ class ExaminerServiceImplTest {
     private ExaminerServiceImpl examinerService;
 
     @Test
-    void shouldThrowIfAmountIsZeroOrNegative() {
+    void shouldThrowIfAmountIsZero() {
         assertThrows(InvalidQuestionsAmountRequestException.class, () -> examinerService.getQuestions(0));
+        verify(questionService, never()).getRandomQuestion();
+    }
+
+    @Test
+    void shouldThrowIfAmountIsNegative() {
         assertThrows(InvalidQuestionsAmountRequestException.class, () -> examinerService.getQuestions(-1));
         verify(questionService, never()).getRandomQuestion();
     }
@@ -42,15 +48,18 @@ class ExaminerServiceImplTest {
     }
 
     @Test
-    void shouldReturnUniqueQuestions() {
-        when(questionService.getAll()).thenReturn(Arrays.asList(question1, question2, question3, question4));
+    void testGetQuestions() {
+        when(questionService.getAll()).thenReturn(List.of(question1, question2, question3, question4));
+        when(questionService.getQuestionsCollectionSize()).thenReturn(4);
+        when(questionService.getRandomQuestion()).thenReturn(question1, question2, question3, question4);
 
-        Collection<Question> actual = examinerService.getQuestions(4);
+        Collection<Question> actual = examinerService.getQuestions(3);
         Set<Question> expected = new HashSet<>(actual);
 
         assertEquals(actual.size(), expected.size());
-        assertTrue(actual.containsAll(expected));
-        verify(questionService, atLeastOnce()).getAll();
+        verify(questionService, atMostOnce()).getAll();
+        verify(questionService, times(2)).getQuestionsCollectionSize();
+        verify(questionService, times(3)).getRandomQuestion();
     }
 
 }
